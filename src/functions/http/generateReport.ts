@@ -1,7 +1,7 @@
 import { SendMessageCommand } from '@aws-sdk/client-sqs';
-import { response } from '../utils/response';
-import { env } from '../config/env';
-import { sqsClient } from '../client/sqsClient';
+import { response } from '../../utils/response';
+import { env } from '../../config/env';
+import { sqsClient } from '../../client/sqsClient';
 import { APIGatewayProxyEventV2 } from 'aws-lambda';
 
 export async function handler(event: APIGatewayProxyEventV2) {

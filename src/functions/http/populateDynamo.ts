@@ -1,9 +1,9 @@
 import { randomUUID } from 'node:crypto';
 import { faker } from '@faker-js/faker';
 import { PutItemCommand } from '@aws-sdk/client-dynamodb';
-import { dynamoClient } from '../client/dynamoClient';
-import { env } from '../config/env';
-import { response } from '../utils/response';
+import { dynamoClient } from '../../client/dynamoClient';
+import { env } from '../../config/env';
+import { response } from '../../utils/response';
 
 export async function handler() {
   // WARNING: TAKE CARE! IT COULD COST YOU FUTURE INVOICES FROM AWS DEPENDING ON TOTAL WRITES
