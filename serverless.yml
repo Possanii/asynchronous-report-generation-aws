@@ -8,6 +8,16 @@ provider:
   runtime: nodejs20.x
   region: us-east-1
   stage: dev
+  environment:
+    DYNAMO_LEADS_TABLE: !Ref LeadsTable
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:PutItem
+            - dynamodb:Scan
+          Resource: !GetAtt LeadsTable.Arn
 
 package:
   individually: true
@@ -21,9 +31,24 @@ build:
       - '@aws-sdk/*'
 
 functions:
-  hello:
-    handler: src/functions/hello.handler
+  populateDynamo:
+    handler: src/functions/populateDynamo.handler
+    timeout: 25
     events:
       - httpApi:
-          path: /
-          method: get
+          path: /populate-dynamo
+          method: POST
+
+resources:
+  Resources:
+    LeadsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: LeadsTable
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
