@@ -60,3 +60,4 @@ functions:
 resources:
   - ${file(./resources/dynamodb/LeadsTable.yml)}
   - ${file(./resources/sqs/GenerateReportQueue.yml)}
+  - ${file(./resources/s3/ReportsBucket.yml)}
