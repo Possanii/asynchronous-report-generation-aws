@@ -1,6 +1,7 @@
 import {
   AttributeValue,
   DynamoDBClient,
+  paginateScan,
   ScanCommand,
 } from '@aws-sdk/client-dynamodb';
 import { env } from '../config/env';
@@ -29,5 +30,14 @@ export class LeadsRepository {
 
       yield Items;
     } while (lastEvaluatedKey);
+  }
+
+  public getLeadsGenerator() {
+    const paginator = paginateScan(
+      { client: this.dynamoDB, pageSize: 50 },
+      { TableName: env.DYNAMO_LEADS_TABLE }
+    );
+
+    return paginator;
   }
 }
