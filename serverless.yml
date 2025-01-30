@@ -8,8 +8,10 @@ provider:
   runtime: nodejs20.x
   region: us-east-1
   stage: dev
+  memorySize: 128
   environment:
     DYNAMO_LEADS_TABLE: !Ref LeadsTable
+    SQS_GENERATE_REPORT_QUEUE: !Ref GenerateReportQueue
   iam:
     role:
       statements:
@@ -18,6 +20,10 @@ provider:
             - dynamodb:PutItem
             - dynamodb:Scan
           Resource: !GetAtt LeadsTable.Arn
+        - Effect: Allow
+          Action:
+            - sqs:SendMessage
+          Resource: !GetAtt GenerateReportQueue.Arn
 
 package:
   individually: true
@@ -38,6 +44,12 @@ functions:
       - httpApi:
           path: /populate-dynamo
           method: POST
+  generateReport:
+    handler: src/functions/generateReport.handler
+    events:
+      - httpApi:
+          path: /generate-report
+          method: POST
 
 resources:
   Resources:
@@ -52,3 +64,19 @@ resources:
         KeySchema:
           - AttributeName: id
             KeyType: HASH
+
+    GenerateReportQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: GenerateReportQueue
+        ReceiveMessageWaitTimeSeconds: 20
+        VisibilityTimeout: 180
+        RedrivePolicy:
+          deadLetterTargetArn: !GetAtt GenerateReportDLQ.Arn
+          maxReceiveCount: 3
+
+    GenerateReportDLQ:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: GenerateReportDLQ
+        MessageRetentionPeriod: 1209600 # 14 days

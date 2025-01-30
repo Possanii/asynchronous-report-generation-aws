@@ -1,3 +1,4 @@
 export const env = {
   DYNAMO_LEADS_TABLE: process.env.DYNAMO_LEADS_TABLE,
+  SQS_GENERATE_REPORT_QUEUE: process.env.SQS_GENERATE_REPORT_QUEUE,
 };
