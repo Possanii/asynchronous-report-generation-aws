@@ -12,6 +12,7 @@ provider:
   environment:
     DYNAMO_LEADS_TABLE: !Ref LeadsTable
     SQS_GENERATE_REPORT_QUEUE: !Ref GenerateReportQueue
+    S3_REPORTS_BUCKET_NAME: !Ref ReportsBucket
   iam:
     role:
       statements:
@@ -24,6 +25,13 @@ provider:
           Action:
             - sqs:SendMessage
           Resource: !GetAtt GenerateReportQueue.Arn
+        - Effect: Allow
+          Action:
+            - s3:PutObject
+            - s3:AbortMultipartUpload
+          Resource:
+            - !GetAtt ReportsBucket.Arn
+            - !Join ['/', [!GetAtt ReportsBucket.Arn, '*']]
 
 package:
   individually: true
@@ -52,6 +60,7 @@ functions:
           method: POST
   processReport:
     handler: src/functions/queues/processReport.handler
+    timeout: 180
     events:
       - sqs:
           arn: !GetAtt GenerateReportQueue.Arn
